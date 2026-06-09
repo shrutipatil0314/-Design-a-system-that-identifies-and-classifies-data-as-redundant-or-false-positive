@@ -1,0 +1,422 @@
+
+<style>
+  :root {
+    --cherry: #9B1C1C;
+    --cherry-light: #C53030;
+    --cherry-dark: #7B1212;
+    --cherry-muted: #FEE2E2;
+    --cherry-border: #FECACA;
+    --cream: #FAF5EB;
+    --cream-dark: #F0E6D0;
+    --cream-border: #E8D5B0;
+    --cream-text: #6B5C3E;
+    --ink: #1C0A00;
+    --ink-soft: #4A3728;
+    --ink-muted: #8B7355;
+    --success: #166534;
+    --success-bg: #DCFCE7;
+    --warning: #92400E;
+    --warning-bg: #FEF3C7;
+    --danger: #991B1B;
+    --danger-bg: #FEE2E2;
+    --info: #1E40AF;
+    --info-bg: #DBEAFE;
+    --white: #FFFFFF;
+    --surface: #FDFAF4;
+    --border: #E8D5B0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: var(--cream); color: var(--ink); }
+
+  .app { max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+  .header { border-bottom: 2px solid var(--cherry); padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .header-left h1 { font-size: 20px; font-weight: 700; color: var(--cherry-dark); letter-spacing: 0.01em; }
+  .header-left p { font-size: 13px; color: var(--ink-muted); margin-top: 3px; font-family: sans-serif; }
+  .db-badge { background: var(--cherry); color: #fff; font-size: 11px; font-family: sans-serif; font-weight: 600; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 5px; white-space: nowrap; margin-top: 2px; }
+  .db-dot { width: 7px; height: 7px; background: #FCA5A5; border-radius: 50%; animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--white); border: 0.5px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; }
+  .stat-label { font-size: 11px; color: var(--ink-muted); font-family: sans-serif; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--cherry-dark); margin-top: 2px; font-family: sans-serif; }
+  .stat-sub { font-size: 11px; color: var(--ink-muted); font-family: sans-serif; margin-top: 1px; }
+
+  .panel { background: var(--white); border: 0.5px solid var(--border); border-radius: 10px; margin-bottom: 1.25rem; overflow: hidden; }
+  .panel-head { background: var(--cream-dark); border-bottom: 1px solid var(--cream-border); padding: 0.6rem 1rem; display: flex; align-items: center; gap: 7px; }
+  .panel-head .icon { font-size: 14px; color: var(--cherry); }
+  .panel-head h2 { font-size: 13px; font-weight: 700; color: var(--cherry-dark); font-family: sans-serif; letter-spacing: 0.03em; text-transform: uppercase; }
+  .panel-head .hbadge { margin-left: auto; font-size: 11px; font-family: sans-serif; padding: 2px 8px; border-radius: 3px; font-weight: 600; }
+  .panel-body { padding: 1rem; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 600; color: var(--ink-soft); font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
+  input, select { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 13px; color: var(--ink); font-family: sans-serif; width: 100%; outline: none; transition: border-color 0.15s; }
+  input:focus, select:focus { border-color: var(--cherry-light); box-shadow: 0 0 0 2px var(--cherry-muted); }
+
+  .submit-row { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-primary { background: var(--cherry); color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-size: 13px; font-weight: 600; font-family: sans-serif; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .btn-primary:hover { background: var(--cherry-light); }
+  .btn-secondary { background: var(--cream-dark); color: var(--cherry-dark); border: 1px solid var(--cream-border); border-radius: 6px; padding: 8px 14px; font-size: 13px; font-weight: 600; font-family: sans-serif; cursor: pointer; transition: background 0.15s; }
+  .btn-secondary:hover { background: var(--cream-border); }
+
+  .result-banner { display: none; border-radius: 7px; padding: 10px 14px; font-size: 13px; font-family: sans-serif; margin-top: 10px; display: flex; align-items: flex-start; gap: 8px; }
+  .result-banner.hidden { display: none !important; }
+  .result-banner.success { background: var(--success-bg); border: 1px solid #BBF7D0; color: var(--success); }
+  .result-banner.duplicate { background: var(--warning-bg); border: 1px solid #FDE68A; color: var(--warning); }
+  .result-banner.fp { background: var(--info-bg); border: 1px solid #BFDBFE; color: var(--info); }
+  .result-banner.error { background: var(--danger-bg); border: 1px solid #FECACA; color: var(--danger); }
+  .banner-icon { font-size: 16px; flex-shrink: 0; }
+  .banner-content strong { display: block; font-weight: 700; }
+  .banner-content span { font-size: 12px; opacity: 0.85; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: sans-serif; }
+  thead th { background: var(--cream-dark); color: var(--cherry-dark); font-weight: 700; padding: 7px 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+  tbody tr { border-bottom: 0.5px solid var(--cream-border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--cream); }
+  tbody td { padding: 7px 10px; color: var(--ink-soft); vertical-align: middle; }
+  .row-highlight { animation: rowIn 0.5s ease; }
+  @keyframes rowIn { from { background: #FEF9C3; } to { background: transparent; } }
+
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
+  .pill-ok { background: #DCFCE7; color: #166534; }
+  .pill-dup { background: #FEF3C7; color: #92400E; }
+  .pill-fp { background: #DBEAFE; color: #1E40AF; }
+  .pill-rej { background: #FEE2E2; color: #991B1B; }
+
+  .log-list { list-style: none; max-height: 180px; overflow-y: auto; }
+  .log-item { font-size: 12px; font-family: sans-serif; padding: 5px 0; border-bottom: 0.5px solid var(--cream-border); display: flex; gap: 8px; align-items: flex-start; color: var(--ink-soft); }
+  .log-time { color: var(--ink-muted); white-space: nowrap; font-size: 11px; flex-shrink: 0; }
+  .log-icon { flex-shrink: 0; font-size: 13px; }
+
+  .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .rule-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 7px; padding: 8px 10px; }
+  .rule-card h4 { font-size: 12px; font-weight: 700; color: var(--cherry-dark); font-family: sans-serif; margin-bottom: 3px; display: flex; align-items: center; gap: 5px; }
+  .rule-card p { font-size: 11px; color: var(--ink-muted); font-family: sans-serif; line-height: 1.5; }
+  .rule-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-ok { background: var(--success); }
+  .dot-warn { background: #D97706; }
+  .dot-info { background: #2563EB; }
+  .dot-err { background: var(--danger); }
+
+  .section-divider { border: none; border-top: 1px dashed var(--cream-border); margin: 1rem 0; }
+
+  @media (max-width: 560px) {
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .field.full { grid-column: 1; }
+    .rules-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Cloud database deduplication and validation system</h2>
+
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>CloudDB · Data Integrity System</h1>
+      <p>Deduplication, validation &amp; false-positive classification engine</p>
+    </div>
+    <div class="db-badge"><span class="db-dot"></span> Live · cloud.db</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-label">Total Records</div>
+      <div class="stat-val" id="stat-total">6</div>
+      <div class="stat-sub">in database</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Accepted</div>
+      <div class="stat-val" id="stat-accepted" style="color:#166534">6</div>
+      <div class="stat-sub">unique &amp; verified</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Blocked</div>
+      <div class="stat-val" id="stat-blocked" style="color:#92400E">0</div>
+      <div class="stat-sub">duplicates rejected</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">False Positives</div>
+      <div class="stat-val" id="stat-fp" style="color:#1E40AF">0</div>
+      <div class="stat-sub">flagged &amp; reviewed</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <i class="ti ti-database-plus icon" aria-hidden="true"></i>
+      <h2>Submit New Entry</h2>
+      <span class="hbadge" style="background:var(--cherry-muted);color:var(--cherry-dark)">Validation active</span>
+    </div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="field">
+          <label for="f-name">Full Name</label>
+          <input id="f-name" type="text" placeholder="Jane Smith" />
+        </div>
+        <div class="field">
+          <label for="f-email">Email Address</label>
+          <input id="f-email" type="email" placeholder="jane@example.com" />
+        </div>
+        <div class="field">
+          <label for="f-phone">Phone Number</label>
+          <input id="f-phone" type="text" placeholder="+1-555-000-0000" />
+        </div>
+        <div class="field">
+          <label for="f-category">Category</label>
+          <select id="f-category">
+            <option value="">Select…</option>
+            <option>Customer</option>
+            <option>Partner</option>
+            <option>Vendor</option>
+            <option>Employee</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="f-id">Unique Identifier (ID / Ref Code)</label>
+          <input id="f-id" type="text" placeholder="REF-00000" />
+        </div>
+      </div>
+      <div class="submit-row">
+        <button class="btn-primary" onclick="handleSubmit()">
+          <i class="ti ti-shield-check" aria-hidden="true"></i> Validate &amp; Submit
+        </button>
+        <button class="btn-secondary" onclick="clearForm()">Clear</button>
+        <button class="btn-secondary" onclick="loadDemo()">Load test entry</button>
+      </div>
+      <div class="result-banner hidden" id="result-banner">
+        <span class="banner-icon" id="banner-icon"></span>
+        <div class="banner-content">
+          <strong id="banner-title"></strong>
+          <span id="banner-msg"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <i class="ti ti-git-branch icon" aria-hidden="true"></i>
+      <h2>Validation Rules</h2>
+    </div>
+    <div class="panel-body">
+      <div class="rules-grid">
+        <div class="rule-card">
+          <h4><span class="rule-dot dot-err"></span> Exact Duplicate Detection</h4>
+          <p>Checks email &amp; unique ID for exact match against all existing records. Blocks entry immediately.</p>
+        </div>
+        <div class="rule-card">
+          <h4><span class="rule-dot dot-warn"></span> Fuzzy Name Matching</h4>
+          <p>Levenshtein similarity ≥ 85% on name + same phone triggers a false-positive flag for review.</p>
+        </div>
+        <div class="rule-card">
+          <h4><span class="rule-dot dot-info"></span> Format Validation</h4>
+          <p>Validates email format, phone pattern, and required field presence before any DB write.</p>
+        </div>
+        <div class="rule-card">
+          <h4><span class="rule-dot dot-ok"></span> Append-only writes</h4>
+          <p>Only entries that pass all checks are appended to the cloud database. No overwrites permitted.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <i class="ti ti-table icon" aria-hidden="true"></i>
+      <h2>Cloud Database</h2>
+      <span class="hbadge" style="background:var(--success-bg);color:var(--success);" id="db-count">6 records</span>
+    </div>
+    <div class="panel-body" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Category</th><th>ID</th><th>Status</th><th>Added</th>
+            </tr>
+          </thead>
+          <tbody id="db-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <i class="ti ti-activity icon" aria-hidden="true"></i>
+      <h2>Validation Log</h2>
+    </div>
+    <div class="panel-body" style="padding: 0.5rem 1rem;">
+      <ul class="log-list" id="log-list"></ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const db = [
+  { id:1, name:"Alice Thornton", email:"alice@corp.com", phone:"+1-555-101-0001", category:"Customer", ref:"REF-00101", status:"ok", ts:"09:00" },
+  { id:2, name:"Brian Kapoor",   email:"bkapoor@vendor.io", phone:"+1-555-202-0002", category:"Vendor", ref:"REF-00202", status:"ok", ts:"09:04" },
+  { id:3, name:"Carla Mendes",   email:"carla.m@partner.org", phone:"+1-555-303-0003", category:"Partner", ref:"REF-00303", status:"ok", ts:"09:12" },
+  { id:4, name:"David Liu",      email:"d.liu@acme.com", phone:"+1-555-404-0004", category:"Employee", ref:"REF-00404", status:"ok", ts:"09:18" },
+  { id:5, name:"Eva Rosenberg",  email:"eva.r@clients.net", phone:"+1-555-505-0005", category:"Customer", ref:"REF-00505", status:"ok", ts:"09:25" },
+  { id:6, name:"Felix Oduya",    email:"felix.o@supply.co", phone:"+1-555-606-0006", category:"Vendor", ref:"REF-00606", status:"ok", ts:"09:33" }
+];
+const logs = [];
+let nextId = 7;
+let statBlocked = 0, statFP = 0;
+
+const demoEntries = [
+  { name:"Alice Thornton",email:"alice@corp.com",phone:"+1-555-101-0001",category:"Customer",ref:"REF-00101" },
+  { name:"Alice Thorntun",email:"alice.thorntun@corp.com",phone:"+1-555-101-0001",category:"Customer",ref:"REF-00999" },
+  { name:"Grace Nakamura",email:"grace.n@newclient.com",phone:"+1-555-707-0007",category:"Customer",ref:"REF-00707" },
+  { name:"",email:"bad-email",phone:"",category:"",ref:"" }
+];
+let demoIdx = 0;
+
+function normalizePhone(p){ return p.replace(/[\s\-\(\)\.]/g,''); }
+function validateEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+  return dp[m][n];
+}
+function similarity(a,b){ const maxL=Math.max(a.length,b.length); return maxL===0?1:(maxL-levenshtein(a.toLowerCase(),b.toLowerCase()))/maxL; }
+
+function now(){ return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+function addLog(icon, text, cls){
+  logs.unshift({icon,text,cls,t:now()});
+  renderLog();
+}
+
+function renderLog(){
+  const ul = document.getElementById('log-list');
+  ul.innerHTML = logs.slice(0,30).map(l=>`
+    <li class="log-item">
+      <span class="log-time">${l.t}</span>
+      <span class="log-icon">${l.icon}</span>
+      <span style="color:var(--ink-soft)">${l.text}</span>
+    </li>`).join('');
+}
+
+function updateStats(){
+  const accepted = db.length;
+  document.getElementById('stat-total').textContent = accepted;
+  document.getElementById('stat-accepted').textContent = accepted;
+  document.getElementById('stat-blocked').textContent = statBlocked;
+  document.getElementById('stat-fp').textContent = statFP;
+  document.getElementById('db-count').textContent = accepted + ' record' + (accepted!==1?'s':'');
+}
+
+function renderDB(){
+  const tbody = document.getElementById('db-tbody');
+  tbody.innerHTML = db.map((r,i)=>`
+    <tr id="row-${r.id}" class="${i===db.length-1?'row-highlight':''}">
+      <td style="color:var(--ink-muted);font-size:11px">${r.id}</td>
+      <td style="font-weight:600">${r.name}</td>
+      <td style="color:var(--info)">${r.email}</td>
+      <td>${r.phone}</td>
+      <td><span style="font-size:11px;color:var(--ink-muted)">${r.category}</span></td>
+      <td style="font-family:monospace;font-size:11px;color:var(--cherry)">${r.ref}</td>
+      <td><span class="pill pill-ok">✔ Verified</span></td>
+      <td style="font-size:11px;color:var(--ink-muted)">${r.ts}</td>
+    </tr>`).join('');
+}
+
+function showBanner(type, title, msg){
+  const b = document.getElementById('result-banner');
+  const icons = { success:'✅', duplicate:'⚠️', fp:'🔵', error:'❌' };
+  b.className = 'result-banner ' + type;
+  document.getElementById('banner-icon').textContent = icons[type]||'ℹ️';
+  document.getElementById('banner-title').textContent = title;
+  document.getElementById('banner-msg').textContent = msg;
+}
+
+function handleSubmit(){
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim().toLowerCase();
+  const phone = document.getElementById('f-phone').value.trim();
+  const category = document.getElementById('f-category').value;
+  const ref = document.getElementById('f-id').value.trim().toUpperCase();
+
+  if(!name || !email || !phone || !category || !ref){
+    showBanner('error','Missing required fields','Please fill in all fields before submitting.');
+    addLog('❌',`Submission rejected — incomplete form fields.`,'error');
+    return;
+  }
+  if(!validateEmail(email)){
+    showBanner('error','Invalid email format',`"${email}" is not a valid email address.`);
+    addLog('❌',`Invalid email format detected: ${email}`,'error');
+    return;
+  }
+  if(!/^\+?[\d\s\-\(\)\.]{7,20}$/.test(phone)){
+    showBanner('error','Invalid phone number',`"${phone}" does not match a recognised phone pattern.`);
+    addLog('❌',`Invalid phone number: ${phone}`,'error');
+    return;
+  }
+
+  const normPhone = normalizePhone(phone);
+  for(const r of db){
+    if(r.email.toLowerCase()===email){
+      showBanner('duplicate','Exact duplicate detected — blocked',`Email "${email}" already exists in record #${r.id} (${r.name}). Entry not added.`);
+      statBlocked++;
+      addLog('🚫',`Duplicate email blocked: ${email} matches record #${r.id}.`,'dup');
+      updateStats(); return;
+    }
+    if(r.ref.toUpperCase()===ref){
+      showBanner('duplicate','Duplicate ID detected — blocked',`ID "${ref}" already exists in record #${r.id}. Entry not added.`);
+      statBlocked++;
+      addLog('🚫',`Duplicate ID blocked: ${ref} matches record #${r.id}.`,'dup');
+      updateStats(); return;
+    }
+  }
+
+  for(const r of db){
+    const nameSim = similarity(r.name, name);
+    const phoneMatch = normalizePhone(r.phone)===normPhone;
+    if(nameSim>=0.85 && phoneMatch){
+      showBanner('fp','Potential false positive — flagged for review',`Name "${name}" is ${Math.round(nameSim*100)}% similar to "${r.name}" (record #${r.id}) and shares the same phone. Entry held pending manual review.`);
+      statFP++;
+      addLog('🔵',`False positive flagged: "${name}" ~ "${r.name}" (${Math.round(nameSim*100)}% similarity, same phone).`,'fp');
+      updateStats(); return;
+    }
+  }
+
+  const ts = now().slice(0,5);
+  db.push({ id:nextId++, name, email, phone, category, ref, status:'ok', ts });
+  renderDB();
+  updateStats();
+  showBanner('success','Entry accepted — appended to database',`"${name}" has passed all validation checks and has been securely written to the cloud database.`);
+  addLog('✅',`New record added: "${name}" (${email}, ${ref}).`,'ok');
+  clearForm();
+}
+
+function clearForm(){
+  ['f-name','f-email','f-phone','f-id'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-category').value='';
+}
+
+function loadDemo(){
+  const e = demoEntries[demoIdx % demoEntries.length]; demoIdx++;
+  document.getElementById('f-name').value=e.name;
+  document.getElementById('f-email').value=e.email;
+  document.getElementById('f-phone').value=e.phone;
+  document.getElementById('f-category').value=e.category;
+  document.getElementById('f-id').value=e.ref;
+  document.getElementById('result-banner').classList.add('hidden');
+  addLog('🧪',`Demo entry loaded (test ${((demoIdx-1)%demoEntries.length)+1}/4).`,'info');
+}
+
+addLog('🚀','System initialised. Cloud DB ready — 6 seed records loaded.','ok');
+addLog('🔐','Validation engine active: exact match, fuzzy match, format checks.','ok');
+renderDB();
+updateStats();
+</script>
